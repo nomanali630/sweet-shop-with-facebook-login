@@ -30,7 +30,7 @@ function Signup() {
     }
     axios({
       method: "post",
-      url: url + "/signup",
+      url: url + "/auth/signup",
       data: Data,
       withCredentials: true
     }).then((response) => {
