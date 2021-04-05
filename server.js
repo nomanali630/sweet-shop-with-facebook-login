@@ -5,12 +5,13 @@ var cors = require("cors");
 var morgan = require("morgan");
 var jwt = require('jsonwebtoken')
 const multer = require('multer')
+var passport = require('passport')
 var app = express()
 var path = require('path');
 var authRoutes = require('./auth/auth')
 var { foodModel } = require("./database/module")
 var { itemOrderModel, addProductModel } = require("./database/module")
-
+require('./auth/passport');
 var SERVER_SECRET = '1255';
 
 app.use(bodyParser.json());
@@ -58,6 +59,43 @@ const bucket = admin.storage().bucket("gs://tweet-profile-pic.appspot.com");
 app.use("/", express.static(path.resolve(path.join(__dirname, "./react/build"))));
 
 app.use('/auth', authRoutes);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get(
+    "/auth/facebook",
+    passport.authenticate("facebook", { scope: ["email"] })
+);
+
+app.get(
+    "/auth/facebook/callback",
+    passport.authenticate("facebook"),
+
+    (req, res, next) => {
+        console.log('profile is', req.user);
+        var token =
+            jwt.sign({
+                id: req.user._id,
+                email: req.user.email,
+                name: req.user.name,
+                role: req.user.role,
+
+            }, SERVER_SECRET)
+
+        res.cookie('jToken', token, {
+            maxAge: 86_400_000,
+            httpOnly: true
+        });
+        res.redirect('/');
+
+    }
+);
+
+
+
+
+
 
 app.use(function (req, res, next) {
 
@@ -141,7 +179,7 @@ app.post("/order", (req, res, next) => {
                 name: req.body.name,
                 phone: req.body.phone,
                 status: "In review",
-                email : req.body.jToken.email,
+                email: req.body.jToken.email,
                 address: req.body.address,
                 total: req.body.Total,
                 orders: req.body.orderData
@@ -186,15 +224,15 @@ app.get("/getproducts", (req, res, next) => {
 })
 app.get("/myOrders", (req, res, next) => {
     foodModel.findOne({ email: req.body.jToken.email }, (err, user) => {
-        console.log("this is user.... ", user);    
+        console.log("this is user.... ", user);
         if (user) {
-        itemOrderModel.find({ email: req.body.jToken.email }, (error, data) => {
-            console.log("this is data.... ", data);    
-            if (data) {
-                
+            itemOrderModel.find({ email: req.body.jToken.email }, (error, data) => {
+                console.log("this is data.... ", data);
+                if (data) {
+
                     res.send({
                         data: data,
-                        message:'maal aa rha hai'
+                        message: 'maal aa rha hai'
                     })
                 } else {
                     res.send(error)
@@ -205,33 +243,33 @@ app.get("/myOrders", (req, res, next) => {
         }
     })
 })
-app.post('/updateStatus',(req,res,next)=>{
-    itemOrderModel.findById({_id:req.body.id},(err,data)=>{
-        if(data){
-            data.updateOne({status:req.body.status},(error,update)=>{
-                if(update){
+app.post('/updateStatus', (req, res, next) => {
+    itemOrderModel.findById({ _id: req.body.id }, (err, data) => {
+        if (data) {
+            data.updateOne({ status: req.body.status }, (error, update) => {
+                if (update) {
                     res.send('status update')
-                }else{
+                } else {
                     console.log(error)
                 }
             })
-        }else{
+        } else {
             res.send(err)
         }
     })
 })
 
-app.post('/delete',(req,res,next)=>{
-    itemOrderModel.findById({_id:req.body.id},(err,data)=>{
-        if(data){
-            data.remove({},(error,update)=>{
-                if(update){
+app.post('/delete', (req, res, next) => {
+    itemOrderModel.findById({ _id: req.body.id }, (err, data) => {
+        if (data) {
+            data.remove({}, (error, update) => {
+                if (update) {
                     res.send('deleted')
-                }else{
+                } else {
                     console.log(error)
                 }
             })
-        }else{
+        } else {
             res.send(err)
         }
     })
@@ -272,7 +310,7 @@ app.post('/delete',(req,res,next)=>{
 app.post("/upload", upload.any(), (req, res, next) => {
 
     console.log("req.body: ", req.body);
-    
+
     console.log(" req.cookies.jToken: ", req.cookies.jToken);
     console.log(" req.headers.jToken ==============: ", req.headers.jToken);
     console.log(" req.body.jToken: ", req.body.jToken);
@@ -306,7 +344,7 @@ app.post("/upload", upload.any(), (req, res, next) => {
                                 })
                             })
                         })
-                        
+
                     } try {
                         fs.unlinkSync(req.files[0].path)
                     } catch (err) {

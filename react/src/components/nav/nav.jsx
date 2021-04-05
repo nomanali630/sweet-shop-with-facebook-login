@@ -12,41 +12,44 @@ function Nav() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           {
             (GlobaleState.loginStatus === true && GlobaleState.role === "admin") ?
-              <div>
-                <ul className="navbar-nav mr-auto">
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <div>
+                  <ul className="navbar-nav mr-auto">
 
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/">Dashboard</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/Addproduct">Add Product</Link>
-                  </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/">Dashboard</Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/Addproduct">Add Product</Link>
+                    </li>
 
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/orderhistory">Order History <span className="sr-only">(current)</span></Link>
-                  </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/orderhistory">Order History <span className="sr-only">(current)</span></Link>
+                    </li>
 
-                  <div style={{ marginLeft: "900px" }} >
-                    <Logout />
-                  </div>
-                </ul>
+                  </ul>
+                </div>
+                <div  >
+                  <Logout />
+                </div>
 
               </div> : null}
           {
             (GlobaleState.loginStatus === true && GlobaleState.role === "user") ?
-              <div>
-                <ul className="navbar-nav mr-auto">
-
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/">Dashboard</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/myOrders">my orders</Link>
-                  </li>
-                  <div style={{ marginLeft: "1000px" }} >
-                    <Logout />
-                  </div>
-                </ul>
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <div>
+                  <ul className="navbar-nav mr-auto">
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/">Dashboard</Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/myOrders">my Orders</Link>
+                    </li>
+                  </ul>
+                </div>
+                <div  >
+                  <Logout />
+                </div>
 
               </div> : null}
 

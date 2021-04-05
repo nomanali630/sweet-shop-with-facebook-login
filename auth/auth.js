@@ -12,108 +12,106 @@ const { app } = require("firebase-admin");
 
 var api = express.Router();
 
-api.use(passport.initialize());
-api.use(passport.session());
 
-passport.serializeUser(function (user, cb) {
-    cb(null, user)
-});
-passport.deserializeUser(function (obj, cb) {
-    cb(null, obj)
-});
+// passport.serializeUser(function (user, cb) {
+//     cb(null, user)
+// });
+// passport.deserializeUser(function (obj, cb) {
+//     cb(null, obj)
+// });
 
 
-passport.use(new FacebookStrategy({
-    clientID: 781352602807401,
-    clientSecret: "257808d60c493c224b9f27981bcf78c4",
-    callbackURL: "http://localhost:5000",
-    profileFields: ['id', 'displayName', 'phone', 'email']
-},
-    function (accessToken, refreshToken, profile, cb) {
+// passport.use(new FacebookStrategy({
+//     clientID: 781352602807401,
+//     clientSecret: "257808d60c493c224b9f27981bcf78c4",
+//     callbackURL: "http://localhost:5000",
+//     profileFields: ['id', 'displayName', 'phone', 'email']
+// },
+//     function (accessToken, refreshToken, profile, cb) {
         
 
-        foodModel.findOne({ facebookId: profile.id }, function (err, user) {
-            console.log("profile ka maal", req.profile)
-            if (!err && !user) {
-                console.log('hello user');
+//         foodModel.findOne({ facebookId: profile.id }, function (err, user) {
+//             console.log("profile ka maal", req.profile)
+//             if (!err && !user) {
+//                 console.log('hello user');
 
-                var newUser = new foodModel({
-                    "name": req.profile.displayName,
-                    "email": req.profile.email,
-                    "phone": req.profile.phone,
+//                 var newUser = new foodModel({
+//                     "name": req.profile.displayName,
+//                     "email": req.profile.email,
+//                     "phone": req.profile.phone,
 
-                })
-                newUser.save((err, data) => {
-                    if (!err) {
-                        res.send({
-                            status: 200,
-                            message: "user created"
-                        })
-                                        console.log('hello user');
-                    } else {
-                        console.log(err);
-                        res.status(500).send({
-                            message: "user create error, " + err
-                        })
-                        console.log('hello user');
+//                 })
+//                 newUser.save((err, data) => {
+//                     if (!err) {
+//                         res.send({
+//                             status: 200,
+//                             message: "user created"
+//                         })
+//                                         console.log('hello user');
+//                     } else {
+//                         console.log(err);
+//                         res.status(500).send({
+//                             message: "user create error, " + err
+//                         })
+//                         console.log('hello user');
                         
-                    }
-                });
-                return cb(null, newUser)
+//                     }
+//                 });
+//                 return cb(null, newUser)
 
-            } else if (user) {
-                var token =
-                    jwt.sign({
-                        id: user._id,
-                        name: user.name,
-                        email: user.email,
-                        role: user.role
-                    }, SERVER_SECRET)
-                res.cookie('jToken', token, {
-                    maxAge: 86_400_000,
-                    httpOnly: true
-                });
+//             } else if (user) {
+//                 var token =
+//                     jwt.sign({
+//                         id: user._id,
+//                         name: user.name,
+//                         email: user.email,
+//                         role: user.role
+//                     }, SERVER_SECRET)
+//                 res.cookie('jToken', token, {
+//                     maxAge: 86_400_000,
+//                     httpOnly: true
+//                 });
 
-                res.send({
-                    status: 200,
-                    message: "login success",
-                    user: {
-                        name: user.name,
-                        email: user.email,
-                        phone: user.phone,
-                        role: user.role
-                    }
-                })
-                return cb(null, user)
-            } else {
-                res.send({
-                    message: "user already exist"
-                })
-                console.log('hello user already exist');
+//                 res.send({
+//                     status: 200,
+//                     message: "login success",
+//                     user: {
+//                         name: user.name,
+//                         email: user.email,
+//                         phone: user.phone,
+//                         role: user.role
+//                     }
+//                 })
+//                 return cb(null, user)
+//             } else {
+//                 res.send({
+//                     message: "user already exist"
+//                 })
+//                 console.log('hello user already exist');
 
-            }
-        })
-        console.log('user is here')
-        return cb(err);
-    }
-));
+//             }
+//         })
+//         console.log('user is here')
+//         return cb(err);
+//     }
+// ));
 
-api.get('/auth/facebook', passport.authenticate('facebook') , (req,res,next)=>{
+// api.get('/auth/facebook', passport.authenticate('facebook') , (req,res,next)=>{
 
-    req.send('facebook login')
+//     req.send('facebook login')
 
-});
+// });
 
-api.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { successRedirect: '/',
-                                      failureRedirect: '' }) , (req,res,next)=>{
-                                        console.log('request user is ',req.cb);
-                                      });
+// api.get('/auth/facebook/callback',
+//   passport.authenticate('facebook', { successRedirect: '/',
+//                                       failureRedirect: '' }) , (req,res,next)=>{
+//                                         console.log('request user is ',req.cb);
+//                                       });
 
-api.use((req,res,next)=>{
-    console.log('request user is ',req.cb)
-    next();
-})
+// api.use((req,res,next)=>{
+//     console.log('request user is ',req.cb)
+//     next();
+// })
 
 api.post("/signup", (req, res, next) => {
 
